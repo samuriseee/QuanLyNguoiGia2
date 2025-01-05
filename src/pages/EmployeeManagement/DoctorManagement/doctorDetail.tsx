@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Card, Space, Image } from 'antd';
+import moment from 'moment';
 
 interface DoctorRecord {
   name: string;
@@ -50,6 +51,7 @@ const DoctorDetail: React.FC = () => {
             </p>
             <p>
               <strong>Ngày thêm:</strong>{' '}
+              {moment(hehe.addedDate).format('YYYY-MM-DD')}
             </p>
             {/* Add more details here if necessary */}
           </div>

@@ -3,8 +3,8 @@ import { useLocation } from 'react-router-dom';
 import { Card, Space, Image } from 'antd';
 import moment from 'moment';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import image1 from '.././assets/unnamed.jpg';
-import image2 from '.././assets/Untitled.png';
+import image1 from '@/assets/unnamed.jpg';
+import image2 from '@/assets/pic2.png';
 import axios from 'axios';
 
 interface HeartRateChartProps {

@@ -18,7 +18,7 @@ const mockMenuList: MenuList = [
       zh_CN: '员工管理',
       en_US: 'Quản lý nhân sự',
     },
-    icon: 'employee',
+    icon: 'team',
     path: '/employee-management',
     children: [
       {
@@ -45,7 +45,7 @@ const mockMenuList: MenuList = [
       zh_CN: '老人管理',
       en_US: 'Quản lý người già',
     },
-    icon: 'oldPeople',
+    icon: 'user',
     path: '/old-people',
   },
   {

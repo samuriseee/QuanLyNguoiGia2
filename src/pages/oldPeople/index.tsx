@@ -199,7 +199,7 @@ const OldPeople: React.FC<OldPeopleProps> = ({ sensor1Data, showNotification }) 
   };
 
   const handleNavigateToDetail = (record: OldPerson) => {
-    navigate(`/oldpeople/${record.key}`, { state: { record } });
+    navigate(`/old-people/${record.key}`, { state: { record } });
   };
 
   const handleHealthChange = (value: string) => {
@@ -283,10 +283,10 @@ const OldPeople: React.FC<OldPeopleProps> = ({ sensor1Data, showNotification }) 
           margin: '20px 20px 5px 20px',
         }}>
         <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-        }}>
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+          }}>
           <h2>Danh Sách Người Cao Tuổi đang lưu trú</h2>
           <div>
             <Button
@@ -316,39 +316,44 @@ const OldPeople: React.FC<OldPeopleProps> = ({ sensor1Data, showNotification }) 
         visible={isModalVisible}
         onOk={handleSave}
         onCancel={handleCancel}
-        width={1000}>
+        width={1000}
+        bodyStyle={{
+          maxHeight: '70vh',
+          overflowY: 'auto',
+          padding: '20px',
+        }}
+      >
         <Form form={form} layout="vertical" name="form_in_modal">
-          <Row gutter={16}>
-            {/* Cột 1: Thông tin của người cao tuổi */}
+          <Row gutter={[24, 24]}>
+            {/* Column 1: Elderly Information */}
             <Col span={8}>
               <Form.Item
                 name="name"
                 label="Tên"
-                rules={[{ required: true, message: 'Vui lòng nhập tên!' }]}>
-                <Input />
+                rules={[{ required: true, message: 'Vui lòng nhập tên!' }]}
+              >
+                <Input placeholder="Nhập tên" />
               </Form.Item>
               <Form.Item
                 name="age"
                 label="Tuổi"
-                rules={[{ required: true, message: 'Vui lòng nhập tuổi!' }]}>
-                <InputNumber min={1} />
+                rules={[{ required: true, message: 'Vui lòng nhập tuổi!' }]}
+              >
+                <InputNumber min={1} style={{ width: '100%' }} placeholder="Nhập tuổi" />
               </Form.Item>
               <Form.Item
                 name="address"
                 label="Địa chỉ"
-                rules={[{ required: true, message: 'Vui lòng nhập địa chỉ!' }]}>
-                <Input />
+                rules={[{ required: true, message: 'Vui lòng nhập địa chỉ!' }]}
+              >
+                <Input placeholder="Nhập địa chỉ" />
               </Form.Item>
               <Form.Item
                 name="health"
                 label="Sức khỏe"
-                rules={[
-                  {
-                    required: true,
-                    message: 'Vui lòng chọn tình trạng sức khỏe!',
-                  },
-                ]}>
-                <Select onChange={handleHealthChange}>
+                rules={[{ required: true, message: 'Vui lòng chọn tình trạng sức khỏe!' }]}
+              >
+                <Select onChange={handleHealthChange} placeholder="Chọn tình trạng sức khỏe">
                   <Option value="Tốt">Tốt</Option>
                   <Option value="Không tốt">Không tốt</Option>
                 </Select>
@@ -357,13 +362,9 @@ const OldPeople: React.FC<OldPeopleProps> = ({ sensor1Data, showNotification }) 
                 <Form.Item
                   name="sensor"
                   label="Thiết bị cảm biến"
-                  rules={[
-                    {
-                      required: true,
-                      message: 'Vui lòng chọn thiết bị cảm biến!',
-                    },
-                  ]}>
-                  <Select>
+                  rules={[{ required: true, message: 'Vui lòng chọn thiết bị cảm biến!' }]}
+                >
+                  <Select placeholder="Chọn thiết bị cảm biến">
                     <Option value="default">Không Có</Option>
                     <Option value="sensordata1">Thiết bị cảm biến 1</Option>
                   </Select>
@@ -372,13 +373,12 @@ const OldPeople: React.FC<OldPeopleProps> = ({ sensor1Data, showNotification }) 
               <Form.Item
                 name="room"
                 label="Phòng"
-                rules={[{ required: true, message: 'Vui lòng chọn phòng!' }]}>
-                <Select>
+                rules={[{ required: true, message: 'Vui lòng chọn phòng!' }]}
+              >
+                <Select placeholder="Chọn phòng">
                   {['A', 'B', 'C'].map((block) =>
                     Array.from({ length: 5 }, (_, i) => (
-                      <Option
-                        key={`${block}${i + 1}`}
-                        value={`${block}${i + 1}`}>
+                      <Option key={`${block}${i + 1}`} value={`${block}${i + 1}`}>
                         {`${block}${i + 1}`}
                       </Option>
                     ))
@@ -388,109 +388,80 @@ const OldPeople: React.FC<OldPeopleProps> = ({ sensor1Data, showNotification }) 
               <Form.Item
                 name="startDate"
                 label="Ngày vào"
-                rules={[
-                  { required: true, message: 'Vui lòng chọn ngày vào!' },
-                ]}>
-                <DatePicker onChange={handleDatePickerChange} />
+                rules={[{ required: true, message: 'Vui lòng chọn ngày vào!' }]}
+              >
+                <DatePicker onChange={handleDatePickerChange} style={{ width: '100%' }} />
               </Form.Item>
               <Form.Item
                 name="hometown"
                 label="Quê quán"
-                rules={[
-                  { required: true, message: 'Vui lòng nhập quê quán!' },
-                ]}>
-                <Input />
+                rules={[{ required: true, message: 'Vui lòng nhập quê quán!' }]}
+              >
+                <Input placeholder="Nhập quê quán" />
               </Form.Item>
             </Col>
-            {/* Cột 2: Thông tin bổ sung về người cao tuổi */}
+
+            {/* Column 2: Additional Elderly Info */}
             <Col span={8}>
               <Form.Item
                 name="medicalHistory"
                 label="Bệnh nền"
-                rules={[
-                  {
-                    required: true,
-                    message: 'Vui lòng nhập thông tin bệnh nền!',
-                  },
-                ]}>
-                <Input />
+                rules={[{ required: true, message: 'Vui lòng nhập thông tin bệnh nền!' }]}
+              >
+                <Input placeholder="Nhập bệnh nền" />
               </Form.Item>
               <Form.Item
                 name="heartRate"
                 label="Nhịp tim trung bình"
-                rules={[
-                  {
-                    required: true,
-                    message: 'Vui lòng nhập chỉ số nhịp tim trung bình!',
-                  },
-                ]}>
-                <InputNumber />
+                rules={[{ required: true, message: 'Vui lòng nhập chỉ số nhịp tim trung bình!' }]}
+              >
+                <InputNumber style={{ width: '100%' }} placeholder="Nhập nhịp tim" />
               </Form.Item>
               <Form.Item
                 name="oxygenLevel"
                 label="Nồng độ oxi trong máu"
-                rules={[
-                  {
-                    required: true,
-                    message: 'Vui lòng nhập nồng độ oxi trong máu!',
-                  },
-                ]}>
-                <InputNumber />
+                rules={[{ required: true, message: 'Vui lòng nhập nồng độ oxi trong máu!' }]}
+              >
+                <InputNumber style={{ width: '100%' }} placeholder="Nhập nồng độ oxi" />
               </Form.Item>
               <Form.Item
                 name="nurse"
                 label="Người điều dưỡng"
-                rules={[
-                  {
-                    required: true,
-                    message: 'Vui lòng nhập tên người điều dưỡng!',
-                  },
-                ]}>
-                <Input />
+                rules={[{ required: true, message: 'Vui lòng nhập tên người điều dưỡng!' }]}
+              >
+                <Input placeholder="Nhập tên người điều dưỡng" />
               </Form.Item>
             </Col>
-            {/* Cột 3: Thông tin của người thân */}
+
+            {/* Column 3: Relative Information */}
             <Col span={8}>
               <Form.Item
                 name="relativeName"
                 label="Tên người thân"
-                rules={[
-                  { required: true, message: 'Vui lòng nhập tên người thân!' },
-                ]}>
-                <Input />
+                rules={[{ required: true, message: 'Vui lòng nhập tên người thân!' }]}
+              >
+                <Input placeholder="Nhập tên người thân" />
               </Form.Item>
               <Form.Item
                 name="phoneNumber"
                 label="Số điện thoại của người thân"
-                rules={[
-                  {
-                    required: true,
-                    message: 'Vui lòng nhập số điện thoại của người thân!',
-                  },
-                ]}>
-                <Input />
+                rules={[{ required: true, message: 'Vui lòng nhập số điện thoại của người thân!' }]}
+              >
+                <Input placeholder="Nhập số điện thoại" />
               </Form.Item>
               <Form.Item
                 name="relativeAddress"
                 label="Địa chỉ nhà của người thân"
-                rules={[
-                  {
-                    required: true,
-                    message: 'Vui lòng nhập địa chỉ nhà của người thân!',
-                  },
-                ]}>
-                <Input />
+                rules={[{ required: true, message: 'Vui lòng nhập địa chỉ nhà của người thân!' }]}
+              >
+                <Input placeholder="Nhập địa chỉ" />
               </Form.Item>
               <Form.Item
                 name="relationship"
                 label="Mối quan hệ với người cao tuổi"
-                rules={[
-                  {
-                    required: true,
-                    message: 'Vui lòng nhập mối quan hệ với người cao tuổi!',
-                  },
-                ]}>
-                <Input />
+                rules={[{ required: true, message: 'Vui lòng nhập mối quan hệ với người cao tuổi!' }]}
+              >
+                <Input placeholder="Nhập mối quan hệ" />
               </Form.Item>
             </Col>
           </Row>

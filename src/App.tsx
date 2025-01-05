@@ -12,6 +12,7 @@ import RenderRouter from './routes';
 import { setGlobalState } from './stores/global.store';
 import { io } from 'socket.io-client';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
 
 const socket = io('http://localhost:3000', {
   transports: ['websocket'],
@@ -27,7 +28,21 @@ const App: React.FC = () => {
   const [sensor1Data, setSensor1Data] = useState({ temperature: 0, Oxy: 0 });
   const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem('loggedIn') === 'true');
   const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setIsLoggedIn(localStorage.getItem('loggedIn') === 'true');
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
   console.log('socket:', socket);
+
   useEffect(() => {
     socket.on('sensorData', data => {
       setSensorData(data);
@@ -142,6 +157,15 @@ const App: React.FC = () => {
     }
   };
 
+    useEffect(() => {
+    if (!isLoggedIn) {
+      const { pathname } = history.location;
+      if (pathname !== '/login' && pathname !== '/register') {
+        history.push('/login');
+      }
+    }
+  }, [isLoggedIn]);
+
   return (
     <ConfigProvider
       locale={getAntdLocale()}
@@ -162,7 +186,11 @@ const App: React.FC = () => {
               }}
               tip={<LocaleFormatter id="gloabal.tips.loading" />}
             ></Spin>
-            <RenderRouter sensorData={sensor1Data} showNotification={showNotification} />
+            <RenderRouter
+              sensorData={sensor1Data}
+              showNotification={showNotification}
+              onLogin={() => setIsLoggedIn(true)}
+            />
           </Suspense>
         </HistoryRouter>
       </IntlProvider>

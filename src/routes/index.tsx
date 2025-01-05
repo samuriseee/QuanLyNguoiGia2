@@ -35,15 +35,21 @@ const NurseManagement = lazy(() => import('@/pages/EmployeeManagement/NurseManag
 const OldPeopleManagement = lazy(() => import('@/pages/oldPeople'));
 const OldPeopleDetail = lazy(() => import('@/pages/oldPeople/oldPeopleDetail'));
 const StorageManagement = lazy(() => import('@/pages/storage'));
-const FoodManagement = lazy(() => import('@/pages/food'))
+const FoodManagement = lazy(() => import('@/pages/food'));
+const RegisterPage = lazy(() => import('@/pages/register'));
 
 const getRouteList = (
   sensorData: any,
   showNotification: any,
+  onLogin: any,
 ): RouteObject[] => [
     {
       path: '/login',
-      element: <WrapperRouteComponent element={<LoginPage />} titleId="title.login" />,
+      element: <WrapperRouteComponent element={<LoginPage onLogin={onLogin} />} titleId="title.login" />,
+    },
+    {
+      path: '/register',
+      element: <WrapperRouteComponent element={<RegisterPage />} titleId="title.register" />,
     },
     {
       path: '/',
@@ -96,12 +102,14 @@ const getRouteList = (
 type Props = {
   sensorData: any;
   showNotification: any;
+  onLogin: any;
 };
 
-const RenderRouter: FC<Props> = ({ sensorData, showNotification }) => {
+const RenderRouter: FC<Props> = ({ sensorData, showNotification, onLogin }) => {
   const element = useRoutes(getRouteList(
     sensorData,
-    showNotification
+    showNotification,
+    onLogin,
   ));
 
   return element;

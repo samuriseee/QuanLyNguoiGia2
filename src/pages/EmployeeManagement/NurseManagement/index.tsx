@@ -112,12 +112,19 @@ const Nurse: React.FC = () => {
   return (
     <>
       <div>
-        <Button
-          type="primary"
-          onClick={handleAdd}
-          style={{ marginBottom: 16, marginRight: 16 }}>
-          Thêm điều dưỡng
-        </Button>
+        <div>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+            }}
+          >
+            <h2>Danh sách điều dưỡng</h2>
+            <Button type="primary" onClick={handleAdd} style={{ marginBottom: 16, marginRight: 16 }}>
+              Thêm Điều Dưỡng
+            </Button>
+          </div>
+        </div>
         <Table columns={columns} dataSource={data} />
       </div>
 

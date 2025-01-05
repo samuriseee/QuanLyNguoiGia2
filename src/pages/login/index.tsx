@@ -28,6 +28,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     );
     if (foundUser) {
       localStorage.setItem("loggedIn", "true");
+      localStorage.setItem("currentUser", JSON.stringify(foundUser));
       notification.success({
         message: "Đăng Nhập Thành Công",
         description: "Chào mừng trở lại!",
