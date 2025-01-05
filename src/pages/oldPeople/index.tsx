@@ -13,12 +13,19 @@ import {
   Row,
   Col,
 } from 'antd';
-import moment from 'moment';
+import moment, { Moment } from 'moment';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const { Option } = Select;
 
-interface OldPersonData {
+interface SensorData {
+  Bpm: number;
+  SpO2: number;
+  Alarm: number;
+}
+
+interface OldPerson {
   key: string;
   name: string;
   age: number;
@@ -26,7 +33,8 @@ interface OldPersonData {
   address: string;
   health: string;
   room: string;
-  startDate: string;
+  startDate: Moment | null;
+  sensor?: string;
   hometown: string;
   medicalHistory: string;
   heartRate: number;
@@ -35,23 +43,89 @@ interface OldPersonData {
   phoneNumber: string;
   relativeAddress: string;
   relationship: string;
-  sensor?: string;
 }
 
 interface OldPeopleProps {
-
+  sensor1Data: any;
+  showNotification: (conditionCode: number, dataToShow: number | null, namesString: string) => void;
 }
 
-const OldPeople: React.FC<OldPeopleProps> = () => {
-  const [data, setData] = useState<OldPersonData[]>([]);
-  const [filteredData, setFilteredData] = useState<OldPersonData[]>([]);
+const OldPeople: React.FC<OldPeopleProps> = ({ sensor1Data, showNotification }) => {
+  const [data, setData] = useState<OldPerson[]>([]);
+  const [filteredData, setFilteredData] = useState<OldPerson[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editingKey, setEditingKey] = useState<string>('');
+  const [editingKey, setEditingKey] = useState('');
   const [form] = Form.useForm();
   const [filterOption, setFilterOption] = useState('Tất cả');
-  const [startDate, setStartDate] = useState<moment.Moment | null>(null);
-  const [healthStatus, setHealthStatus] = useState<string>(''); // State to manage health status
+  const [startDate, setStartDate] = useState<Moment | null>(null);
+  const [healthStatus, setHealthStatus] = useState(''); // State to manage health status
   const navigate = useNavigate();
+  const [sensorData, setSensorData] = useState<SensorData>({ Bpm: 0, SpO2: 0, Alarm: 0 });
+  const [prevSensorData, setPrevSensorData] = useState<SensorData | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/api/sensorData');
+        setSensorData(response.data);
+      } catch (error) {
+        console.error('Error fetching sensor data:', error);
+      }
+    };
+
+    const interval = setInterval(() => {
+      fetchData();
+    }, 1000); // Fetch data every 1 second
+
+    return () => clearInterval(interval); // Clean up interval on component unmount
+  }, []);
+
+  const peopleWithNonDefaultSensor = data.filter(
+    (person) => person.sensor && person.sensor !== 'default'
+  );
+  const namesWithNonDefaultSensor = peopleWithNonDefaultSensor.map(
+    (person) => person.name
+  );
+  const uniqueNames = [...new Set(namesWithNonDefaultSensor)];
+  const namesString = uniqueNames.join(', ');
+
+  useEffect(() => {
+    const { Bpm, SpO2, Alarm } = sensorData;
+    console.log(Alarm);
+    if (Bpm !== 0 || SpO2 !== 0 || Alarm !== 0) {
+      if (
+        prevSensorData &&
+        JSON.stringify(prevSensorData) === JSON.stringify(sensorData)
+      ) {
+        return; // Dữ liệu mới giống dữ liệu trước đó, không cần gọi lại showNotification
+      }
+
+      if (Bpm < 60 || Bpm > 100 || SpO2 < 90 || Alarm === 1) {
+        let conditionCode = 0;
+        let dataToShow: number | null = null;
+
+        if (Bpm < 60 && Bpm > 20) {
+          conditionCode = 1;
+          dataToShow = Bpm;
+        } else if (Bpm > 120) {
+          conditionCode = 1;
+          dataToShow = Bpm;
+        } else if (SpO2 < 90 && SpO2 > 20) {
+          conditionCode = 2;
+          dataToShow = SpO2;
+        } else if (Alarm === 1) {
+          conditionCode = 3;
+        } else if (Bpm > 120) {
+          conditionCode = 4;
+          dataToShow = Bpm;
+        }
+
+        showNotification(conditionCode, dataToShow, namesString);
+      }
+
+      setPrevSensorData(sensorData);
+    }
+  }, [sensorData, prevSensorData, namesString, showNotification]);
 
   useEffect(() => {
     const savedData = localStorage.getItem('oldPeopleData');
@@ -72,7 +146,7 @@ const OldPeople: React.FC<OldPeopleProps> = () => {
     setIsModalVisible(true);
   };
 
-  const handleEdit = (record: OldPersonData) => {
+  const handleEdit = (record: OldPerson) => {
     form.setFieldsValue({
       ...record,
       startDate: record.startDate ? moment(record.startDate) : null,
@@ -96,11 +170,11 @@ const OldPeople: React.FC<OldPeopleProps> = () => {
         newData[index] = { ...values, key: editingKey, startDate: date };
       } else {
         const newKey = newData.length
-          ? (parseInt(newData[newData.length - 1].key, 10) + 1).toString()
-          : '1';
+          ? parseInt(newData[newData.length - 1].key, 10) + 1
+          : 1;
         newData.push({
           ...values,
-          key: newKey,
+          key: newKey.toString(),
           startDate: date,
         });
       }
@@ -124,7 +198,7 @@ const OldPeople: React.FC<OldPeopleProps> = () => {
     setStartDate(date);
   };
 
-  const handleNavigateToDetail = (record: OldPersonData) => {
+  const handleNavigateToDetail = (record: OldPerson) => {
     navigate(`/oldpeople/${record.key}`, { state: { record } });
   };
 
@@ -138,7 +212,7 @@ const OldPeople: React.FC<OldPeopleProps> = () => {
       dataIndex: 'name',
       key: 'name',
       width: 200,
-      render: (text: string, record: OldPersonData) => (
+      render: (text: string, record: OldPerson) => (
         <a onClick={() => handleNavigateToDetail(record)}>{text}</a>
       ),
     },
@@ -181,7 +255,7 @@ const OldPeople: React.FC<OldPeopleProps> = () => {
       title: 'Ngày vào',
       key: 'startDate',
       dataIndex: 'startDate',
-      render: (startDate: string) => {
+      render: (startDate: Moment | null) => {
         if (startDate) {
           return moment(startDate).format('YYYY-MM-DD');
         }
@@ -191,7 +265,7 @@ const OldPeople: React.FC<OldPeopleProps> = () => {
     {
       title: 'Hành động',
       key: 'action',
-      render: (_: any, record: OldPersonData) => (
+      render: (_: any, record: OldPerson) => (
         <Space size="middle">
           <a onClick={() => handleEdit(record)}>Sửa</a>
           <a onClick={() => handleDelete(record.key)}>Xóa</a>
@@ -205,28 +279,37 @@ const OldPeople: React.FC<OldPeopleProps> = () => {
       <div
         style={{
           display: 'flex',
-          justifyContent: 'space-between',
+          flexDirection: 'column',
           margin: '20px 20px 5px 20px',
         }}>
-        <Button
-          type="primary"
-          onClick={handleAdd}
-          style={{ marginBottom: 16, marginRight: 16 }}>
-          Thêm người cao tuổi
-        </Button>
-        <Select
-          value={filterOption}
-          onChange={handleFilterChange}
-          style={{ marginBottom: 16, width: 200 }}>
-          <Option value="Tất cả">Hiển thị tất cả</Option>
-          <Option value="Tốt">Lọc sức khỏe tốt</Option>
-          <Option value="Không tốt">Lọc sức khỏe không tốt</Option>
-        </Select>
+        <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+        }}>
+          <h2>Danh Sách Người Cao Tuổi đang lưu trú</h2>
+          <div>
+            <Button
+              type="primary"
+              onClick={handleAdd}
+              style={{ marginBottom: 16, marginRight: 16 }}>
+              Thêm người cao tuổi
+            </Button>
+            <Select
+              value={filterOption}
+              onChange={handleFilterChange}
+              style={{ marginBottom: 16, width: 200 }}>
+              <Option value="Tất cả">Hiển thị tất cả</Option>
+              <Option value="Tốt">Lọc sức khỏe tốt</Option>
+              <Option value="Không tốt">Lọc sức khỏe không tốt</Option>
+            </Select>
+          </div>
+        </div>
+        <Table
+          columns={columns}
+          dataSource={filteredData.length > 0 ? filteredData : data}
+        />
       </div>
-      <Table
-        columns={columns}
-        dataSource={filteredData.length > 0 ? filteredData : data}
-      />
 
       <Modal
         title="Thêm/Sửa Người Cao Tuổi"

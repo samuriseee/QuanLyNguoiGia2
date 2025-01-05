@@ -48,36 +48,47 @@ const App: React.FC = () => {
   console.log('sensor1Data:', sensor1Data);
   let emergencyData = sensorData.sensor1.Oxy.toFixed(2);
 
-  const showNotification = (emergencyData: any) => {
+  const playSound = () => {
+    const audio = new Audio('/public/sound.mp3');
+    audio.play();
+  };
+  const showNotification = (conditionCode: any, data: any, namesString: string) => {
+    playSound();
+    let description = '';
+
+    switch (conditionCode) {
+      case 1:
+        description = `Người cao tuổi ${namesString} Nhịp tim hiện tại: ${data}`;
+        break;
+      case 2:
+        description = `Người cao tuổi ${namesString} Nồng độ oxi trong máu: ${data}`;
+        break;
+      case 3:
+        description = `Người cao tuổi ${namesString} Alarm: Thông báo té ngã`;
+        break;
+      case 4:
+        description = `Người cao tuổi ${namesString} Nhịp tim hiện tại trên 120: ${data}`;
+        break;
+    }
+
     notification.error({
-      message: 'Cảnh báo khẩn cấp',
-      description: (
-        <div>
-          <p>Bệnh nhân Nguyễn Văn A đang có vấn đề</p>
-          <p>
-            <strong>Nồng độ oxy trong máu:</strong> {emergencyData}
-          </p>
-        </div>
-      ),
+      message: 'Alert',
+      description,
       placement: 'topRight',
       duration: 0,
       style: {
         backgroundColor: '#ff4d4f',
         color: '#fff',
-        border: '1px solid #ff7875',
-        borderRadius: '8px',
-        padding: '16px',
       },
-      icon: <ExclamationCircleOutlined style={{ color: '#fff' }} />,
     });
   };
 
-  useEffect(() => {
-    if (Number(emergencyData) < 90) {
-      showNotification(emergencyData);
-    }
-  }, [emergencyData]);
-  console.log(emergencyData);
+  // useEffect(() => {
+  //   if (Number(emergencyData) < 90) {
+  //     showNotification(emergencyData);
+  //   }
+  // }, [emergencyData]);
+  // console.log(emergencyData);
 
   const handleLogout = () => {
     localStorage.removeItem('loggedIn');
@@ -151,7 +162,7 @@ const App: React.FC = () => {
               }}
               tip={<LocaleFormatter id="gloabal.tips.loading" />}
             ></Spin>
-            <RenderRouter />
+            <RenderRouter sensorData={sensor1Data} showNotification={showNotification} />
           </Suspense>
         </HistoryRouter>
       </IntlProvider>

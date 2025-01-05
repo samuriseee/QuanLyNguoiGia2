@@ -1,8 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import { Server } from 'socket.io';
-import http from 'http';
 
 const app = express();
 const port = 3000;
@@ -26,8 +24,7 @@ app.post('/data', (req, res) => {
 
   sensorData = req.body; // Lưu dữ liệu từ ESP8266 vào biến sensorData
 
-  // Emit the sensor data to all connected clients
-  io.emit('sensorData', sensorData);
+  // Có thể xử lý dữ liệu tại đây nếu cần thiết
 
   res.send('Data received by server');
 });
@@ -49,21 +46,6 @@ app.use((err, req, res, next) => {
   res.status(500).send('500 Internal Server Error');
 });
 
-const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: 'http://localhost:8889', // Replace with your frontend URL
-    methods: ['GET', 'POST'],
-  },
-});
-
-io.on('connection', (socket) => {
-  console.log('A user connected');
-  socket.on('disconnect', () => {
-    console.log('User disconnected');
-  });
-});
-
-server.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 });

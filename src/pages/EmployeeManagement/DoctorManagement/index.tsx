@@ -118,20 +118,16 @@ const Doctor: React.FC = () => {
 
   return (
     <>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          margin: '20px 20px 5px 20px',
-        }}>
+      <div>
         <Button
           type="primary"
           onClick={handleAdd}
           style={{ marginBottom: 16, marginRight: 16 }}>
           Thêm bác sĩ
         </Button>
+        <Table columns={columns} dataSource={data} />
       </div>
-      <Table columns={columns} dataSource={data} />
+
 
       <Modal
         title="Thêm/Sửa Thông Tin Bác Sĩ"

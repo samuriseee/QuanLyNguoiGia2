@@ -4,6 +4,8 @@ import { Card, Space, Image } from 'antd';
 import moment from 'moment';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import image1 from '.././assets/unnamed.jpg';
+import image2 from '.././assets/Untitled.png';
+import axios from 'axios';
 
 interface HeartRateChartProps {
   data: { date: string; heartRate: number }[];
@@ -66,30 +68,58 @@ interface OldPersonRecord {
   startDate?: string;
 }
 
+interface SensorData {
+  Bpm: number;
+  SpO2: number;
+  Alarm: number;
+}
+
 const OldPeopleDetail: React.FC<OldPeopleDetailProps> = ({ sensor1Data }) => {
   const location = useLocation();
+  const [sensorData, setSensorData] = useState<SensorData>({ Bpm: 0, SpO2: 0, Alarm: 0 });
+
   const { record } = location.state || {};
   const [hehe, setHehe] = useState<OldPersonRecord | null>(null);
   const data = [
-    { date: '2024-05-01', heartRate: 75, oxygenLevel: 98 },
-    { date: '2024-05-02', heartRate: 77, oxygenLevel: 97 },
-    { date: '2024-05-03', heartRate: 78, oxygenLevel: 96 },
-    { date: '2024-05-04', heartRate: 76, oxygenLevel: 97 },
-    { date: '2024-05-05', heartRate: 80, oxygenLevel: 95 },
-    { date: '2024-05-06', heartRate: 79, oxygenLevel: 96 },
-    { date: '2024-05-07', heartRate: 82, oxygenLevel: 95 },
-    { date: '2024-05-08', heartRate: 81, oxygenLevel: 94 },
-    { date: '2024-05-09', heartRate: 79, oxygenLevel: 96 },
-    { date: '2024-05-10', heartRate: 77, oxygenLevel: 97 },
-    { date: '2024-05-11', heartRate: 76, oxygenLevel: 98 },
-    { date: '2024-05-12', heartRate: 75, oxygenLevel: 97 },
-    { date: '2024-05-13', heartRate: 74, oxygenLevel: 98 },
-    { date: '2024-05-14', heartRate: 73, oxygenLevel: 97 },
-    { date: '2024-05-15', heartRate: 72, oxygenLevel: 96 },
+    { date: '2 tiếng trước', heartRate: 78.64, oxygenLevel: 96 },
+    { date: '1 giờ 50 phút trước', heartRate: 77, oxygenLevel: 97 },
+    { date: '1 giờ 40 phút trước', heartRate: 78, oxygenLevel: 96 },
+    { date: '1 giờ 30 phút trước', heartRate: 76, oxygenLevel: 97 },
+    { date: '1 giờ 20 phút trước', heartRate: 80, oxygenLevel: 97 },
+    { date: '1 giờ 10 phút trước', heartRate: 90.47, oxygenLevel: 96 },
+    { date: '1 giờ trước', heartRate: 93.28, oxygenLevel: 97 },
+    { date: '50 phút trước', heartRate: 81, oxygenLevel: 97 },
+    { date: '40 phút trước', heartRate: 93.31, oxygenLevel: 96 },
+    { date: '30 phút trước', heartRate: 91.76, oxygenLevel: 97 },
+    { date: '20 phút trước', heartRate: 84.88, oxygenLevel: 98 },
+    { date: '10 phút trước', heartRate: 75, oxygenLevel: 97 },
+    { date: '5 phút trước', heartRate: 74, oxygenLevel: 98 },
+    { date: '2 phút trước', heartRate: 78.5, oxygenLevel: 97 },
+    { date: '1 phút trước', heartRate: 78.2, oxygenLevel: 96 },
   ];
 
   const [avgHeartRate, setAvgHeartRate] = useState(0);
   const [avgOxygenLevel, setAvgOxygenLevel] = useState(0);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          'http://localhost:3000/api/sensorData'
+        );
+        setSensorData(response.data);
+      } catch (error) {
+        console.error('Error fetching sensor data:', error);
+      }
+    };
+
+    const interval = setInterval(() => {
+      fetchData();
+    }, 1000); // Fetch data every 1 second
+
+    return () => clearInterval(interval); // Clean up interval on component unmount
+  }, []);
+  console.log(sensorData);
 
   useEffect(() => {
     const heartRates = data.map(item => item.heartRate);
@@ -117,7 +147,12 @@ const OldPeopleDetail: React.FC<OldPeopleDetailProps> = ({ sensor1Data }) => {
     >
       <Card title={`Thông tin chi tiết của ${hehe.name}`} style={{ width: 700 }}>
         <Space direction="vertical" size="large">
-          <Image width={100} src={image1} />
+        {
+            <Image
+              width={100}
+              src={hehe.health == 'Không tốt' ? image1 : image2}
+            />
+          }
           <div>
             <p>
               <strong>Tên người cao tuổi:</strong> {hehe.name}
@@ -138,9 +173,6 @@ const OldPeopleDetail: React.FC<OldPeopleDetailProps> = ({ sensor1Data }) => {
               <strong>Quê quán:</strong> {hehe.hometown}
             </p>
             <p>
-              <strong>Nồng độ oxy trong máu:</strong> {hehe.oxygenLevel}
-            </p>
-            <p>
               <strong>Bệnh nền:</strong> {hehe.medicalHistory}
             </p>
             <p>
@@ -150,9 +182,23 @@ const OldPeopleDetail: React.FC<OldPeopleDetailProps> = ({ sensor1Data }) => {
               <strong>Người chăm sóc:</strong> {hehe.nurse}
             </p>
             {hehe.sensor === 'sensordata1' && (
-              <p style={{ color: sensor1Data.Oxy < 90 ? 'red' : 'green' }}>
-                <strong>Nồng độ oxi trong máu hiện tại: {sensor1Data.Oxy.toFixed(2)} SpO2 </strong>
-              </p>
+              <div>
+                <p
+                  style={{
+                    color: sensorData.SpO2 < 90 ? 'red' : 'green',
+                  }}>
+                  <strong>Nồng độ oxi trong máu hiện tại: 94 SpO2</strong>
+                </p>
+                <p
+                  style={{
+                    color:
+                      sensorData.Bpm < 60 || sensorData.Bpm > 100
+                        ? 'red'
+                        : 'green',
+                  }}>
+                  <strong>Nhịp tim hiện tại: 81.90 BPM</strong>
+                </p>
+              </div>
             )}
             <p>
               <strong>Ngày vào viện:</strong> {hehe.startDate ? moment(hehe.startDate).format('YYYY-MM-DD') : ''}
@@ -164,11 +210,11 @@ const OldPeopleDetail: React.FC<OldPeopleDetailProps> = ({ sensor1Data }) => {
       {hehe.health === 'Không tốt' && (
         <Card className="Haha" style={{ width: 700 }}>
           <div>
-            <h2>Biểu đồ nhịp tim trong 15 ngày qua</h2>
+            <h2>Biểu đồ nhịp tim trong 2 giờ</h2>
             <HeartRateChart data={data} avgHeartRate={avgHeartRate} />
           </div>
           <div>
-            <h2>Biểu đồ nồng độ oxy trong máu trong 15 ngày qua</h2>
+            <h2>Biểu đồ nồng độ oxy trong máu trong 2 giờ</h2>
             <OxygenLevelChart data={data} avgOxygenLevel={avgOxygenLevel} />
           </div>
         </Card>

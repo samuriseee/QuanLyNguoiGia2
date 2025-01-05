@@ -48,7 +48,33 @@ const mockMenuList: MenuList = [
     icon: 'oldPeople',
     path: '/old-people',
   },
-  
+  {
+    code: 'facility',
+    label: {
+      zh_CN: '老人管理',
+      en_US: 'Quản lý cơ sở',
+    },
+    icon: 'facility',
+    path: '/facility',
+    children: [
+      {
+        code: 'storage',
+        label: {
+          zh_CN: '医生',
+          en_US: 'Quản lý Kho',
+        },
+        path: '/facility/storage',
+      },
+      {
+        code: 'food',
+        label: {
+          zh_CN: '护士',
+          en_US: 'Quản lý Thực phẩm',
+        },
+        path: '/facility/food',
+      },
+    ],
+  },
   // {
   //   code: 'component',
   //   label: {
