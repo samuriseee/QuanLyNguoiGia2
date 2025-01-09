@@ -14,6 +14,12 @@ import { io } from 'socket.io-client';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 
+interface SensorData {
+  Bpm: number;
+  SpO2: number;
+  Alarm: number;
+}
+
 const socket = io('http://localhost:3000', {
   transports: ['websocket'],
 });
@@ -63,12 +69,13 @@ const App: React.FC = () => {
     console.log('Updated sensor data:', sensor1Data.Oxy.toFixed(2));
   }, [sensor1Data]);
   console.log('sensor1Data:', sensor1Data);
-  let emergencyData = sensorData.sensor1.Oxy.toFixed(2);
 
   const playSound = () => {
     const audio = new Audio('/public/sound.mp3');
+
     audio.play();
   };
+
   const showNotification = (conditionCode: any, data: any, namesString: string) => {
     playSound();
     let description = '';
@@ -99,6 +106,54 @@ const App: React.FC = () => {
       },
     });
   };
+
+  const peopleWithNonDefaultSensor =
+    sensorData.sensor1 &&
+    (sensorData.sensor1.temperature !== 0 ||
+      sensorData.sensor1.Oxy !== 0 ||
+      sensorData.sensor1.Bpm !== 0 ||
+      sensorData.sensor1.SpO2 !== 0 ||
+      sensorData.sensor1.Alarm !== 0);
+  const namesWithNonDefaultSensor = peopleWithNonDefaultSensor ? ['Name'] : [];
+  const uniqueNames = [...new Set(namesWithNonDefaultSensor)];
+  const namesString = uniqueNames.join(', ');
+
+  useEffect(() => {
+    const { Bpm, SpO2, Alarm } = sensorData.sensor1;
+
+    if (Bpm !== 0 || SpO2 !== 0 || Alarm !== 0) {
+      if (prevSensorData && JSON.stringify(prevSensorData) === JSON.stringify(sensorData.sensor1)) {
+        return; // Dữ liệu mới giống dữ liệu trước đó, không cần gọi lại showNotification
+      }
+
+      if (Bpm < 60 || Bpm > 100 || SpO2 < 90 || Alarm === 1) {
+        let conditionCode = 0;
+        let dataToShow: number | null = null;
+
+        if (Bpm < 60 && Bpm > 20) {
+          conditionCode = 1;
+          dataToShow = Bpm;
+        } else if (Bpm > 120) {
+          conditionCode = 1;
+          dataToShow = Bpm;
+        } else if (SpO2 < 90 && SpO2 > 20) {
+          conditionCode = 2;
+          dataToShow = SpO2;
+        } else if (Alarm === 1) {
+          conditionCode = 3;
+        } else if (Bpm > 120) {
+          conditionCode = 4;
+          dataToShow = Bpm;
+        }
+
+        showNotification(conditionCode, dataToShow, namesString);
+      }
+
+      setPrevSensorData(sensorData.sensor1);
+    }
+  }, [sensorData, prevSensorData, namesString]);
+
+  // const emergencyData = sensorData.sensor1.Oxy.toFixed(2);
 
   // useEffect(() => {
   //   if (Number(emergencyData) < 90) {
