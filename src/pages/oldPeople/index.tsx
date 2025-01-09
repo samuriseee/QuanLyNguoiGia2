@@ -90,8 +90,9 @@ const OldPeople: React.FC<OldPeopleProps> = ({ sensor1Data, showNotification }) 
   const namesString = uniqueNames.join(', ');
 
   useEffect(() => {
+    console.log('run to this')
     const { Bpm, SpO2, Alarm } = sensorData;
-    console.log(Alarm);
+    console.log('Alarm', Alarm);
     if (Bpm !== 0 || SpO2 !== 0 || Alarm !== 0) {
       if (
         prevSensorData &&

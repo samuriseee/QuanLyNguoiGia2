@@ -77,18 +77,34 @@ const HeaderComponent: FC<HeaderProps> = ({ collapsed, toggle }) => {
 
   return (
     <Header className="layout-page-header bg-2" style={{ backgroundColor: token.token.colorBgContainer }}>
-      <div className="logo" style={{ width: collapsed ? 80 : 200 }}>
-        <img src={ReactSvg} alt="" style={{
-          marginRight: collapsed ? '2px' : '20px', 
-          width: '40px',
-          height: '40px',
-          objectFit: 'cover'
-        }} />
-        <img src={AntdSvg} alt="" style={{
-          width: '60px',
-          height: '60px',
-          objectFit: 'cover',
-        }} />
+      <div
+        className="logo"
+        style={{
+          width: collapsed ? 80 : 200,
+          transition: 'width 0.3s ease',
+        }}
+      >
+        <img
+          src={ReactSvg}
+          alt=""
+          style={{
+            marginRight: collapsed ? '2px' : '20px',
+            width: collapsed ? '20px' : '40px',
+            height: collapsed ? '20px' : '40px',
+            objectFit: 'cover',
+            transition: 'all 0.3s ease',
+          }}
+        />
+        <img
+          src={AntdSvg}
+          alt=""
+          style={{
+            width: collapsed ? '30px' : '60px',
+            height: collapsed ? '30px' : '60px',
+            objectFit: 'cover',
+            transition: 'all 0.3s ease',
+          }}
+        />
       </div>
       <div className="layout-page-header-main">
         <div onClick={toggle}>

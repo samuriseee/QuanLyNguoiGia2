@@ -23,8 +23,10 @@ const App: React.FC = () => {
   const { theme, loading } = useSelector(state => state.global);
   const dispatch = useDispatch();
   const [sensorData, setSensorData] = useState({
-    sensor1: { temperature: 0, Oxy: 0 },
+    sensor1: { temperature: 0, Oxy: 0, Bpm: 0, SpO2: 0, Alarm: 0 },
   });
+  const [prevSensorData, setPrevSensorData] = useState<SensorData | null>(null);
+
   const [sensor1Data, setSensor1Data] = useState({ temperature: 0, Oxy: 0 });
   const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem('loggedIn') === 'true');
   const [collapsed, setCollapsed] = useState(false);
@@ -157,7 +159,7 @@ const App: React.FC = () => {
     }
   };
 
-    useEffect(() => {
+  useEffect(() => {
     if (!isLoggedIn) {
       const { pathname } = history.location;
       if (pathname !== '/login' && pathname !== '/register') {

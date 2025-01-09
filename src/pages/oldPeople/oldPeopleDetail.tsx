@@ -4,7 +4,7 @@ import { Card, Space, Image } from 'antd';
 import moment from 'moment';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import image1 from '@/assets/unnamed.jpg';
-import image2 from '@/assets/pic2.png';
+import image2 from '@/assets/Untitled.png';
 import axios from 'axios';
 
 interface HeartRateChartProps {
@@ -119,7 +119,7 @@ const OldPeopleDetail: React.FC<OldPeopleDetailProps> = ({ sensor1Data }) => {
 
     return () => clearInterval(interval); // Clean up interval on component unmount
   }, []);
-  console.log(sensorData);
+  console.log('sensorData', sensorData);
 
   useEffect(() => {
     const heartRates = data.map(item => item.heartRate);
@@ -187,7 +187,7 @@ const OldPeopleDetail: React.FC<OldPeopleDetailProps> = ({ sensor1Data }) => {
                   style={{
                     color: sensorData.SpO2 < 90 ? 'red' : 'green',
                   }}>
-                  <strong>Nồng độ oxi trong máu hiện tại: 94 SpO2</strong>
+                  <strong>Nồng độ oxi trong máu hiện tại: {sensorData.SpO2} SpO2</strong>
                 </p>
                 <p
                   style={{
@@ -196,7 +196,7 @@ const OldPeopleDetail: React.FC<OldPeopleDetailProps> = ({ sensor1Data }) => {
                         ? 'red'
                         : 'green',
                   }}>
-                  <strong>Nhịp tim hiện tại: 81.90 BPM</strong>
+                  <strong>Nhịp tim hiện tại: {sensorData.Bpm} BPM</strong>
                 </p>
               </div>
             )}
